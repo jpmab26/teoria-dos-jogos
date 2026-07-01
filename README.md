@@ -118,53 +118,89 @@ resumo dos números principais:
 
 | Grandeza | Referência | Replicado | Erro |
 |---|---|---|---|
-| Settling time, controlador único | 2,40 s | 2,28 s | ~5% |
+| Settling time, controlador único | 2,40 s | 2,4000 s | ~0% |
 | Overshoot, controlador único | 0% | ~0% | — |
-| Settling time médio, controlador comutante | 4,28 s | 4,15 s | ~3% |
+| Settling time médio, controlador comutante | 4,2827 s | 4,2835 s | ~0,02% |
+| Settling time mín./máx., controlador comutante | 2,88 / 6,42 s | 2,88 / 6,46 s | ~0% / ~0,6% |
 | Overshoot máximo, controlador comutante | ≤2,93% | 2,86% | — |
 | Ganho de ataque Ko (contra controlador único, alvo 50%) | 4,0451 | 4,0454 | <0,1% |
 | Overshoot real do ataque contra controlador único | 48,90% | 48,91% | <0,1% |
 | Overshoot máximo do ataque contra controlador comutante | 10,12% | 10,14% | ~0,2% |
 
-O ajuste ficou, na maioria das métricas, dentro de poucos pontos percentuais
-do valor de referência — incluindo o formato qualitativo das curvas de
-resposta (mesmo padrão de sobressinal único e suave sob ataque contra o
-controlador único, mesmo "mergulho" característico na envoltória de Monte
-Carlo do controlador comutante). Duas notas de engenharia relevantes:
+Esse nível de precisão não veio de ajuste fino de parâmetros — veio de
+**resolver duas ambiguidades genuínas de implementação comparando
+diretamente contra o código-fonte MATLAB/Simulink original do autor**, que
+tivemos acesso a uma cópia de (pasta local `Ataque - Man-in-the-middle
+(JISA)/`, não versionada neste repositório por não ser código nosso — ver
+`.gitignore`). Duas descobertas concretas:
 
-**Ambiguidade de sinal na fórmula da planta.** A notação típica usada para
-descrever este tipo de planta (`G(z) = (g1·z+g2)/(z² − g3·z + g4)`, com
-`g3` sendo um valor negativo) é ambígua quanto a se o segundo coeficiente
-do denominador deve entrar com o sinal literal ou invertido — um problema
-comum ao se trabalhar com fórmulas com sinais e subscritos. Testamos
-exaustivamente as 8 combinações de sinal possíveis (denominador da planta ×
-numerador do controlador) e avaliamos cada uma por três critérios
-independentes: (1) estabilidade em malha fechada com os ganhos do
-controlador conhecidos; (2) plausibilidade física dos polos da planta (um
-motor DC tem tipicamente polos reais positivos, não negativos, quando
-discretizado); e (3) a forma qualitativa da resposta ao ataque de ganho
-(um único sobressinal suave, não um batimento de alta frequência). Uma
-única combinação passa nos três critérios simultaneamente — polos da planta
-positivos combinados com o numerador do controlador sem negar o segundo
-coeficiente —, e é justamente essa combinação, adotada em
-`src/ncs_model.py`, que produz o ajuste fino tabelado acima. A leitura
-alternativa (sinal literal ingênuo) é estável mas fisicamente implausível e
-erra o settling time em ~50% e o Ko de ataque em ~500%; ver o comentário
-"RESOLUÇÃO DE AMBIGUIDADE DE SINAL" no topo de `src/ncs_model.py` para o
-detalhamento completo desse teste.
+**1. Ambiguidade de sinal na fórmula da planta e do controlador, resolvida.**
+A notação usual para esse tipo de planta (`G(z) = (g1·z+g2)/(z² − g3·z +
+g4)`, com `g3` sendo um valor negativo) é ambígua quanto a se o segundo
+coeficiente do denominador deveria entrar com o sinal literal ou invertido
+— o mesmo vale para o segundo coeficiente do numerador do controlador PI.
+Antes de ter acesso ao código original, testamos exaustivamente as 8
+combinações de sinal possíveis (denominador da planta × numerador do
+controlador) contra três critérios indiretos (estabilidade em malha
+fechada, plausibilidade física dos polos, forma qualitativa da resposta ao
+ataque) e chegamos a uma combinação candidata. O script MATLAB original
+(`avalia_varios_chaveamentos.m`) **confirma exatamente essa escolha**:
 
-**Estado do controlador inativo durante a comutação.** Como o controlador
-que não está ativo deve se comportar enquanto espera sua vez não é um
-detalhe universal — é uma escolha de implementação. Testamos duas
-alternativas: (a) congelar o estado do controlador inativo, sem nenhum
-tratamento especial ao retomá-lo; e (b) uma transferência "bumpless" (sem
-solavanco), em que o controlador que assume o controle tem seu estado
-reinicializado para que sua saída não salte no instante da troca. A opção
-(a) é a que reproduz de perto os números tabelados acima; a opção (b),
-embora mais "seguras" do ponto de vista de engenharia de controle
-clássica, amortece demais o efeito da comutação neste sistema específico.
-`bumpless=False` é portanto o padrão adotado (parâmetro documentado em
-`simulate_switching_monte_carlo`, em `src/ncs_model.py`).
+```matlab
+planta_num = [.3379 .2793];
+planta_den = [1 -1.5462 .5646];   % MATLAB tf(): representa z² − 1.5462·z + 0.5646
+num_cont   = [.1701 -.1673];      % C1(z) = (0.1701·z − 0.1673) / (z − 1)
+den_cont   = [1 -1];
+num_cont2  = 0.001*[1 0.2];       % C2(z) = (0.001·z + 0.0002) / (z − 1)
+den_cont2  = [1 -1];
+```
+
+Como `g3 = -1,5462` é o valor publicado, `planta_den = [1, -1.5462, 0.5646]`
+é exatamente `z² + g3·z + g4` — ou seja, o coeficiente entra **sem
+inversão de sinal** —, e `num_cont = [0.1701, -0.1673] = [c1,1, c2,1]`
+igualmente **sem inversão**. É exatamente a convenção adotada em
+`plant_block`/`controller1_block`, em `src/ncs_model.py`, e é o que produz
+o ajuste fino tabelado acima (a leitura literal ingênua da fórmula, com o
+sinal invertido, embora também estável, erra o settling time em ~50% e o
+Ko de ataque em ~500%).
+
+**2. Mecanismo de comutação, confirmado.** O script cria os dois
+controladores como blocos `DiscreteTransferFcn` independentes no Simulink
+(`Controlador2`, `Controlador3`) e usa dois blocos `Switch` (critério
+padrão `u2 ≥ 0`, alimentados pelo mesmo sinal de chaveamento aleatório
+±1) para rotear o sinal de erro: **o controlador inativo recebe entrada
+zero**, não o erro real — não há nenhuma transferência "bumpless" (sem
+solavanco) explícita. Isso não é o mesmo que "congelar" o estado
+literalmente, mas é **matematicamente equivalente** para os controladores
+deste sistema: como ambos têm a forma de um integrador puro
+(`x(k+1) = x(k) + 1·e(k)`), alimentar `e(k)=0` enquanto inativo dá
+`x(k+1) = x(k)` — o estado fica constante de qualquer forma. Confirma
+exatamente a opção `bumpless=False` (estado do controlador inativo
+congelado) já adotada como padrão em `simulate_switching_monte_carlo`, em
+`src/ncs_model.py` — não por ser a que melhor ajustava os números
+(embora seja), mas por ser, de fato, o que o código original faz.
+
+**3. Critério de tempo de acomodação, corrigido.** O script usa
+`abs(1-respostas) > exp(-4)` para determinar se uma amostra ainda está fora
+da faixa de acomodação — uma tolerância de `exp(-4) ≈ 1,83%`, não o
+critério usual de 2% ou 5% de engenharia de controle. Ajustamos
+`settling_time` (`src/ncs_model.py`) para usar exatamente essa tolerância
+por padrão (constante `SETTLING_TOL`), o que sozinho levou o settling time
+do controlador único de 2,28s (erro de ~5%) para 2,4000s (erro ~0%).
+
+**4. O "±0,0146s" publicado é um intervalo de confiança da média, não um
+desvio-padrão.** A distribuição do tempo de acomodação sob o controlador
+comutante tem uma faixa mín-máx de 2,88s a 6,42s — incompatível com um
+desvio-padrão de apenas 0,0146s (isso exigiria uma distância de centenas de
+desvios-padrão entre o mínimo/máximo e a média, estatisticamente
+impossível em 100.000 amostras). O texto de origem, lido com atenção,
+confirma: é "a média... com um intervalo de confiança de 95%", não o
+desvio-padrão bruto. Nosso desvio-padrão replicado (0,73s) implica um IC95%
+da média de `1,96·0,73/√100000 ≈ 0,0045s` — mesma ordem de grandeza,
+mesma conclusão qualitativa (a média está muito bem determinada apesar da
+distribuição individual ser larga) —, mas comparável ao valor publicado
+apenas como IC da média, não como desvio-padrão da distribuição. Ver a
+nota "Nota sobre o IC95% do settling time" em `resultados.md`.
 
 A identificação via BSA (Parte A.4) roda em escala reduzida (30 em vez de
 100 repetições, por economia de tempo; ver `src/bsa.py`) mas reproduz
@@ -172,7 +208,13 @@ claramente o fenômeno central: sob o controlador único, o BSA identifica os
 coeficientes corretos com precisão numérica exata; sob o controlador
 comutante, as estimativas ficam dispersas e não convergem para nenhum dos
 dois controladores reais — a "assinatura" que o jogo da Parte B/C usa para
-calibrar o parâmetro `g` (razão de mitigação).
+calibrar o parâmetro `g` (razão de mitigação). Não tivemos acesso a um
+script MATLAB equivalente para a identificação via BSA propriamente dita
+(o script `ataque_mitm_perda_0.m` na pasta original usa `sisotool`, a
+ferramenta *interativa* de projeto do MATLAB, para desenhar `M(z)` a partir
+de coeficientes já identificados — não reproduz o processo de otimização do
+BSA em si), então essa parte permanece validada apenas indiretamente (pelo
+padrão de dispersão N vs. S, não por comparação numérica direta de código).
 
 ---
 
@@ -478,9 +520,10 @@ unidades de `V=1`) e variados amplamente na análise de sensibilidade
 ### O achado "knife-edge"
 
 Com os parâmetros calibrados — tanto a partir da referência de controle
-quanto a partir da nossa própria replicação, que concordam de perto —
-`y* = σ/(L(1−g))` fica **ligeiramente acima de 1** (≈1,01 a partir da
-referência; ≈1,05 a partir da nossa replicação). Como `y*` é uma fração
+quanto a partir da nossa própria replicação, que agora concordam muito de
+perto (dentro de ~0,1%) — `y* = σ/(L(1−g))` fica **ligeiramente acima de 1**
+(≈1,006 a partir da referência; ≈1,006 a partir da nossa replicação). Como
+`y*` é uma fração
 (deveria estar entre 0 e 1 para representar um ponto interior válido),
 `y*>1` significa que, **mesmo se todos os atacantes atacassem sempre**
 (`y=1`), o benefício de mitigação ainda não compensaria o custo da

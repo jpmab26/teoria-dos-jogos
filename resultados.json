@@ -1,7 +1,7 @@
 {
   "part_a_control": {
     "non_switching": {
-      "settling_time_s": 2.2800000000000002,
+      "settling_time_s": 2.4,
       "overshoot_pct": -0.006460435216970595,
       "reference_article": {
         "settling_time_s": 2.4,
@@ -11,16 +11,17 @@
     },
     "switching": {
       "n_sims": 100000,
-      "elapsed_s": 2.4948856830596924,
-      "settling_time_mean_s": 4.1484374,
-      "settling_time_std_s": 0.777623532489366,
-      "settling_time_min_s": 2.8000000000000003,
-      "settling_time_max_s": 6.44,
+      "elapsed_s": 2.4943554401397705,
+      "settling_time_mean_s": 4.2835326,
+      "settling_time_std_s": 0.7273763405124201,
+      "settling_time_ci95_of_mean_s": 0.00450832526618941,
+      "settling_time_min_s": 2.88,
+      "settling_time_max_s": 6.46,
       "overshoot_max_pct": 2.863132953643799,
       "overshoot_mean_pct": 1.136033296585083,
       "reference_article": {
         "settling_time_mean_s": 4.2827,
-        "settling_time_std_s": 0.0146,
+        "settling_time_ci95_of_mean_s": 0.0146,
         "settling_time_min_s": 2.88,
         "settling_time_max_s": 6.42,
         "overshoot_max_pct": 2.93
@@ -29,7 +30,8 @@
         "figures/fig_A2_switching_envelope.png",
         "figures/fig_A2_settling_histogram.png"
       ],
-      "modeling_note": "Estado do controlador inativo congelado (sem reset especial na retomada); ver docstring de simulate_switching_monte_carlo em src/ncs_model.py para a justificativa desta escolha."
+      "modeling_note": "Estado do controlador inativo congelado (sem reset especial na retomada); confirmado diretamente contra o modelo Simulink original do autor (ver README, secao 'Comparacao com o codigo-fonte original').",
+      "ci_note": "O '0.0146s' reportado como referencia e um intervalo de confianca de 95% da MEDIA (conforme o texto da fonte: 'mean is 4.2827s +-0.0146s, with a confidence interval of 95%'), nao o desvio-padrao da distribuicao entre simulacoes -- um desvio-padrao de 0.0146s seria incompativel com a faixa min/max de 2.88-6.42s reportada na mesma fonte. Por isso comparamos o desvio-padrao replicado com o INTERVALO DE CONFIANCA DA MEDIA que ele implica (1.96*std/sqrt(n)), nao diretamente com o desvio-padrao bruto."
     }
   },
   "part_a3_attack": {
@@ -59,7 +61,7 @@
     "n_trials": 30,
     "pop_size": 100,
     "iters": 600,
-    "elapsed_s": 16.295504808425903,
+    "elapsed_s": 16.427482843399048,
     "fitness_mean_non_switching": 4.852139753640591e-34,
     "fitness_std_non_switching": 1.7105694144590052e-49,
     "fitness_mean_switching": 0.0008325000496120688,
@@ -90,11 +92,11 @@
       "V": 1.0,
       "L": 0.9782257119413859,
       "g": 0.20273567199707032,
-      "sigma": 0.8194900877192979,
+      "sigma": 0.7848052500000001,
       "source": "replicado",
       "raw": {
-        "ts_n": 2.2800000000000002,
-        "ts_s_mean": 4.1484374,
+        "ts_n": 2.4,
+        "ts_s_mean": 4.2835326,
         "actual_overshoot_n": 48.911285597069295,
         "overshoot_s_given_ko": 10.136783599853516
       }
@@ -112,7 +114,7 @@
       "V": 1.0,
       "L": 0.9782257119413859,
       "g": 0.20273567199707032,
-      "sigma": 0.8194900877192979,
+      "sigma": 0.7848052500000001,
       "kappa": 0.1,
       "p": 0.3,
       "delta": 1.0
@@ -127,13 +129,13 @@
       "delta": 1.0
     },
     "kappa_p_delta_note": "kappa, p e delta nao tem contrapartida numerica direta na literatura de controle consultada; kappa=0.1, p=0.3, delta=1.0 (em unidades de V=1) sao um cenario-base ilustrativo. A analise de sensibilidade (Parte C) varre os tres em faixas amplas.",
-    "knife_edge_note": "Tanto a calibracao PRIMARIA (artigo, y*=1.0056) quanto a SECUNDARIA (replicada, y*=1.0508) colocam y* = sigma/(L(1-g)) ligeiramente ACIMA de 1: os numeros de controle (tanto os publicados quanto os que replicamos de forma independente) colocam o custo da comutacao e o beneficio de mitigacao quase exatamente em equilibrio ('knife-edge'). Nesse regime, o ponto interior do jogo deixa de existir dentro de (0,1)^2 e (N,C) passa a ser, tecnicamente, um equilibrio de Nash estrito (ver Tabela de vertices) -- ou seja, o proprio par controlador/contramedida descrito na literatura, com os parametros de deteccao/custo do cenario-base acima, esta no limite exato entre 'vale a pena comutar sempre' e 'a comutacao e uma estrategia mista'. Para ilustrar o comportamento GENERICO de centro/orbita fechada previsto pela teoria para o caso interior (o resultado central da Parte C), as Figs. C1-C2 usam um cenario PEDAGOGICO (nao calibrado): os mesmos V, L, g, kappa, p, delta do cenario-base, mas com sigma reduzido pela metade -- apenas para obter um ponto interior genuino a ilustrar."
+    "knife_edge_note": "Tanto a calibracao PRIMARIA (artigo, y*=1.0056) quanto a SECUNDARIA (replicada, y*=1.0063) colocam y* = sigma/(L(1-g)) ligeiramente ACIMA de 1: os numeros de controle (tanto os publicados quanto os que replicamos de forma independente) colocam o custo da comutacao e o beneficio de mitigacao quase exatamente em equilibrio ('knife-edge'). Nesse regime, o ponto interior do jogo deixa de existir dentro de (0,1)^2 e (N,C) passa a ser, tecnicamente, um equilibrio de Nash estrito (ver Tabela de vertices) -- ou seja, o proprio par controlador/contramedida descrito na literatura, com os parametros de deteccao/custo do cenario-base acima, esta no limite exato entre 'vale a pena comutar sempre' e 'a comutacao e uma estrategia mista'. Para ilustrar o comportamento GENERICO de centro/orbita fechada previsto pela teoria para o caso interior (o resultado central da Parte C), as Figs. C1-C2 usam um cenario PEDAGOGICO (nao calibrado): os mesmos V, L, g, kappa, p, delta do cenario-base, mas com sigma reduzido pela metade -- apenas para obter um ponto interior genuino a ilustrar."
   },
   "part_c_replicator": {
     "x_star": 0.8199708454810497,
     "y_star": 1.0056477373497454,
     "x_star_replicated": 0.8202216886409134,
-    "y_star_replicated": 1.0507570152966825,
+    "y_star_replicated": 1.0062838275130337,
     "x_star_pedagogical": 0.8199708454810497,
     "y_star_pedagogical": 0.5028238686748727,
     "vertices": {

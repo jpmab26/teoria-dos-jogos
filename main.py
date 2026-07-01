@@ -99,9 +99,12 @@ def part_a_control(results):
     elapsed = time.time() - t0
     st_s = settling_time(y_s)
     ov_s = overshoot_pct(y_s)
+    ci95_print = 1.96 * np.nanstd(st_s) / np.sqrt(N_SIMS_MC)
     print(f"Comutante ({N_SIMS_MC} sims, {elapsed:.1f}s): "
-          f"settling mean={np.nanmean(st_s):.4f}s +-{np.nanstd(st_s):.4f} "
-          f"(artigo: 4.2827s +-0.0146s), overshoot max={ov_s.max():.4f}% (artigo: <=2.93%)")
+          f"settling mean={np.nanmean(st_s):.4f}s (artigo: 4.2827s), "
+          f"min={np.nanmin(st_s):.2f}s max={np.nanmax(st_s):.2f}s (artigo: 2.88-6.42s), "
+          f"IC95%-da-media={ci95_print:.4f}s (artigo: 0.0146s), "
+          f"overshoot max={ov_s.max():.4f}% (artigo: <=2.93%)")
 
     plt.figure(figsize=(7, 4))
     plt.fill_between(t, y_s.min(axis=1), y_s.max(axis=1), alpha=0.3,
@@ -119,6 +122,8 @@ def part_a_control(results):
     plt.title("Histograma do tempo de acomodacao - controlador comutante\n(Parte A.2, cf. Fig. 13)", fontsize=11)
     fig_a2_hist = savefig("fig_A2_settling_histogram.png")
 
+    settling_std = float(np.nanstd(st_s))
+    settling_ci95 = 1.96 * settling_std / np.sqrt(N_SIMS_MC)
     results["part_a_control"] = dict(
         non_switching=dict(
             settling_time_s=float(ts_n), overshoot_pct=float(ov_n),
@@ -128,21 +133,33 @@ def part_a_control(results):
         switching=dict(
             n_sims=N_SIMS_MC, elapsed_s=elapsed,
             settling_time_mean_s=float(np.nanmean(st_s)),
-            settling_time_std_s=float(np.nanstd(st_s)),
+            settling_time_std_s=settling_std,
+            settling_time_ci95_of_mean_s=float(settling_ci95),
             settling_time_min_s=float(np.nanmin(st_s)),
             settling_time_max_s=float(np.nanmax(st_s)),
             overshoot_max_pct=float(ov_s.max()),
             overshoot_mean_pct=float(ov_s.mean()),
             reference_article=dict(
-                settling_time_mean_s=4.2827, settling_time_std_s=0.0146,
+                settling_time_mean_s=4.2827, settling_time_ci95_of_mean_s=0.0146,
                 settling_time_min_s=2.88, settling_time_max_s=6.42,
                 overshoot_max_pct=2.93,
             ),
             figures=[fig_a2_env, fig_a2_hist],
             modeling_note=(
                 "Estado do controlador inativo congelado (sem reset especial na "
-                "retomada); ver docstring de simulate_switching_monte_carlo em "
-                "src/ncs_model.py para a justificativa desta escolha."
+                "retomada); confirmado diretamente contra o modelo Simulink "
+                "original do autor (ver README, secao 'Comparacao com o codigo-"
+                "fonte original')."
+            ),
+            ci_note=(
+                "O '0.0146s' reportado como referencia e um intervalo de confianca "
+                "de 95% da MEDIA (conforme o texto da fonte: 'mean is 4.2827s "
+                "+-0.0146s, with a confidence interval of 95%'), nao o desvio-"
+                "padrao da distribuicao entre simulacoes -- um desvio-padrao de "
+                "0.0146s seria incompativel com a faixa min/max de 2.88-6.42s "
+                "reportada na mesma fonte. Por isso comparamos o desvio-padrao "
+                "replicado com o INTERVALO DE CONFIANCA DA MEDIA que ele implica "
+                "(1.96*std/sqrt(n)), nao diretamente com o desvio-padrao bruto."
             ),
         ),
     )
@@ -464,11 +481,13 @@ def render_markdown(r):
     lines.append("| Grandeza | Artigo | Replicado | Observacao |")
     lines.append("|---|---|---|---|")
     ns = ctrl["non_switching"]
-    lines.append(f"| Settling time (N) | {ns['reference_article']['settling_time_s']} s | {ns['settling_time_s']:.4f} s | criterio de banda +-2% |")
+    lines.append(f"| Settling time (N) | {ns['reference_article']['settling_time_s']} s | {ns['settling_time_s']:.4f} s | criterio de banda exp(-4)~=1.83% (ver nota de tolerancia) |")
     lines.append(f"| Overshoot (N) | {ns['reference_article']['overshoot_pct']}% | {ns['overshoot_pct']:.4f}% | |")
     sw = ctrl["switching"]
     lines.append(f"| Settling time medio (S) | {sw['reference_article']['settling_time_mean_s']} s | {sw['settling_time_mean_s']:.4f} s | 100.000 sims Monte Carlo |")
-    lines.append(f"| Settling time desvio-padrao (S) | {sw['reference_article']['settling_time_std_s']} s | {sw['settling_time_std_s']:.4f} s | |")
+    lines.append(f"| Settling time min (S) | {sw['reference_article']['settling_time_min_s']} s | {sw['settling_time_min_s']:.4f} s | |")
+    lines.append(f"| Settling time max (S) | {sw['reference_article']['settling_time_max_s']} s | {sw['settling_time_max_s']:.4f} s | |")
+    lines.append(f"| Settling time, IC95% da media (S) | {sw['reference_article']['settling_time_ci95_of_mean_s']} s | {sw['settling_time_ci95_of_mean_s']:.4f} s | ver nota sobre IC95 abaixo (desvio-padrao bruto replicado: {sw['settling_time_std_s']:.4f} s) |")
     lines.append(f"| Overshoot maximo (S) | {sw['reference_article']['overshoot_max_pct']}% | {sw['overshoot_max_pct']:.4f}% | |")
     atk_n = atk["non_switching"]
     lines.append(f"| Ko (ataque contra N) | {atk_n['reference_article']['ko']} | {atk_n['ko']:.4f} | ver nota de validacao abaixo |")
@@ -480,6 +499,7 @@ def render_markdown(r):
     lines.append("")
     lines.append("**Nota de validacao (Ko / overshoot contra N):** " + atk_n["validation_note"] + "\n")
     lines.append("**Nota de modelagem (controlador comutante):** " + sw["modeling_note"] + "\n")
+    lines.append("**Nota sobre o IC95% do settling time:** " + sw["ci_note"] + "\n")
     lines.append("**Nota de escala (BSA):** " + bsa["scale_reduction_note"] + "\n")
 
     lines.append("## Parte B - Parametros calibrados do jogo\n")

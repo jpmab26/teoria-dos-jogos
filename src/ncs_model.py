@@ -310,8 +310,20 @@ def simulate_switching_monte_carlo(
 # Metricas de desempenho de controle
 # ---------------------------------------------------------------------------
 
-def settling_time(y, ts=TS, r_value: float = 1.0, tol: float = 0.02):
-    """Tempo de acomodacao (criterio de faixa +-tol em torno do valor final).
+# Tolerancia de acomodacao exp(-4) ~= 1.8316%: este e o criterio literal
+# usado no script MATLAB original do autor (avalia_varios_chaveamentos.m,
+# pasta "Ataque - Man-in-the-middle (JISA)"), linha
+# `acom_todos=(abs(1-respostas)>exp(-4))`, tomando o ULTIMO indice fora da
+# faixa -- exatamente o mesmo algoritmo implementado em `_single` abaixo.
+# Adotado aqui em vez do criterio-padrao de engenharia de controle (2% ou
+# 5%) para fidelidade com a fonte original.
+SETTLING_TOL = float(np.exp(-4))
+
+
+def settling_time(y, ts=TS, r_value: float = 1.0, tol: float = SETTLING_TOL):
+    """Tempo de acomodacao (criterio de faixa +-tol em torno do valor final;
+    tol default = exp(-4), o criterio usado no codigo MATLAB original -- ver
+    SETTLING_TOL acima).
 
     Aceita y como array 1D (uma trajetoria) ou 2D (n_steps, n_sims) -- neste
     caso retorna um array de tempos de acomodacao, um por simulacao.
