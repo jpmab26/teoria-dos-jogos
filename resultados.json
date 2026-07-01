@@ -1,0 +1,277 @@
+{
+  "part_a_control": {
+    "non_switching": {
+      "settling_time_s": 2.2800000000000002,
+      "overshoot_pct": -0.006460435216970595,
+      "reference_article": {
+        "settling_time_s": 2.4,
+        "overshoot_pct": 0.0
+      },
+      "figure": "figures/fig_A1_non_switching_response.png"
+    },
+    "switching": {
+      "n_sims": 100000,
+      "elapsed_s": 2.4948856830596924,
+      "settling_time_mean_s": 4.1484374,
+      "settling_time_std_s": 0.777623532489366,
+      "settling_time_min_s": 2.8000000000000003,
+      "settling_time_max_s": 6.44,
+      "overshoot_max_pct": 2.863132953643799,
+      "overshoot_mean_pct": 1.136033296585083,
+      "reference_article": {
+        "settling_time_mean_s": 4.2827,
+        "settling_time_std_s": 0.0146,
+        "settling_time_min_s": 2.88,
+        "settling_time_max_s": 6.42,
+        "overshoot_max_pct": 2.93
+      },
+      "figures": [
+        "figures/fig_A2_switching_envelope.png",
+        "figures/fig_A2_settling_histogram.png"
+      ],
+      "modeling_note": "Estado do controlador inativo congelado (sem reset especial na retomada); ver docstring de simulate_switching_monte_carlo em src/ncs_model.py para a justificativa desta escolha."
+    }
+  },
+  "part_a3_attack": {
+    "non_switching": {
+      "ko": 4.045410432531361,
+      "expected_overshoot_pct": 49.999999982010436,
+      "actual_overshoot_pct": 48.911285597069295,
+      "reference_article": {
+        "ko": 4.0451,
+        "overshoot_pct": 48.9
+      },
+      "figure": "figures/fig_A3_attack_non_switching.png",
+      "validation_note": "Ko projetado (4.0454) e overshoot real obtido (48.91%) reproduzem os valores de referencia (Ko=4.0451, overshoot=48.90%) com erro abaixo de 0.1%. Ver src/ncs_model.py (nota 'RESOLUCAO DE AMBIGUIDADE DE SINAL') para a convencao de sinal usada na planta e no controlador."
+    },
+    "switching": {
+      "ko": 1.2815,
+      "overshoot_max_pct": 10.136783599853516,
+      "overshoot_mean_pct": 6.311771392822266,
+      "overshoot_p95_pct": 9.59312915802002,
+      "reference_article": {
+        "overshoot_pct": 10.12
+      },
+      "figure": "figures/fig_A3_attack_switching.png"
+    }
+  },
+  "part_a4_bsa": {
+    "n_trials": 30,
+    "pop_size": 100,
+    "iters": 600,
+    "elapsed_s": 16.295504808425903,
+    "fitness_mean_non_switching": 4.852139753640591e-34,
+    "fitness_std_non_switching": 1.7105694144590052e-49,
+    "fitness_mean_switching": 0.0008325000496120688,
+    "fitness_std_switching": 0.00010520696901359961,
+    "reference_article": {
+      "fitness_mean_non_switching": 1.84e-07,
+      "fitness_mean_switching": 0.000742
+    },
+    "figure": "figures/fig_A4_bsa_dispersion.png",
+    "scale_reduction_note": "Reduzido de 100 para 30 repeticoes por execucao (ver src/bsa.py); populacao=100 e iteracoes=600 mantidos identicos ao artigo (problema 2D, barato). Identificacao da planta (4D, 800 iter) NAO executada em escala completa -- documentada como extensao futura."
+  },
+  "part_b_calibration": {
+    "article": {
+      "V": 1.0,
+      "L": 0.978,
+      "g": 0.2024,
+      "sigma": 0.7844583333333335,
+      "source": "artigo",
+      "raw": {
+        "v_target_overshoot": 50.0,
+        "l_actual_overshoot_n": 48.9,
+        "overshoot_s": 10.12,
+        "ts_n": 2.4,
+        "ts_s_mean": 4.2827
+      }
+    },
+    "replicated": {
+      "V": 1.0,
+      "L": 0.9782257119413859,
+      "g": 0.20273567199707032,
+      "sigma": 0.8194900877192979,
+      "source": "replicado",
+      "raw": {
+        "ts_n": 2.2800000000000002,
+        "ts_s_mean": 4.1484374,
+        "actual_overshoot_n": 48.911285597069295,
+        "overshoot_s_given_ko": 10.136783599853516
+      }
+    },
+    "baseline_game_params": {
+      "V": 1.0,
+      "L": 0.978,
+      "g": 0.2024,
+      "sigma": 0.7844583333333335,
+      "kappa": 0.1,
+      "p": 0.3,
+      "delta": 1.0
+    },
+    "replicated_game_params": {
+      "V": 1.0,
+      "L": 0.9782257119413859,
+      "g": 0.20273567199707032,
+      "sigma": 0.8194900877192979,
+      "kappa": 0.1,
+      "p": 0.3,
+      "delta": 1.0
+    },
+    "pedagogical_game_params": {
+      "V": 1.0,
+      "L": 0.978,
+      "g": 0.2024,
+      "sigma": 0.39222916666666674,
+      "kappa": 0.1,
+      "p": 0.3,
+      "delta": 1.0
+    },
+    "kappa_p_delta_note": "kappa, p e delta nao tem contrapartida numerica direta na literatura de controle consultada; kappa=0.1, p=0.3, delta=1.0 (em unidades de V=1) sao um cenario-base ilustrativo. A analise de sensibilidade (Parte C) varre os tres em faixas amplas.",
+    "knife_edge_note": "Tanto a calibracao PRIMARIA (artigo, y*=1.0056) quanto a SECUNDARIA (replicada, y*=1.0508) colocam y* = sigma/(L(1-g)) ligeiramente ACIMA de 1: os numeros de controle (tanto os publicados quanto os que replicamos de forma independente) colocam o custo da comutacao e o beneficio de mitigacao quase exatamente em equilibrio ('knife-edge'). Nesse regime, o ponto interior do jogo deixa de existir dentro de (0,1)^2 e (N,C) passa a ser, tecnicamente, um equilibrio de Nash estrito (ver Tabela de vertices) -- ou seja, o proprio par controlador/contramedida descrito na literatura, com os parametros de deteccao/custo do cenario-base acima, esta no limite exato entre 'vale a pena comutar sempre' e 'a comutacao e uma estrategia mista'. Para ilustrar o comportamento GENERICO de centro/orbita fechada previsto pela teoria para o caso interior (o resultado central da Parte C), as Figs. C1-C2 usam um cenario PEDAGOGICO (nao calibrado): os mesmos V, L, g, kappa, p, delta do cenario-base, mas com sigma reduzido pela metade -- apenas para obter um ponto interior genuino a ilustrar."
+  },
+  "part_c_replicator": {
+    "x_star": 0.8199708454810497,
+    "y_star": 1.0056477373497454,
+    "x_star_replicated": 0.8202216886409134,
+    "y_star_replicated": 1.0507570152966825,
+    "x_star_pedagogical": 0.8199708454810497,
+    "y_star_pedagogical": 0.5028238686748727,
+    "vertices": {
+      "(N,Ø)": {
+        "x": 0,
+        "y": 0,
+        "is_nash": false
+      },
+      "(N,C)": {
+        "x": 0,
+        "y": 1,
+        "is_nash": true
+      },
+      "(S,Ø)": {
+        "x": 1,
+        "y": 0,
+        "is_nash": false
+      },
+      "(S,C)": {
+        "x": 1,
+        "y": 1,
+        "is_nash": false
+      }
+    },
+    "vertices_pedagogical": {
+      "(N,Ø)": {
+        "x": 0,
+        "y": 0,
+        "is_nash": false
+      },
+      "(N,C)": {
+        "x": 0,
+        "y": 1,
+        "is_nash": false
+      },
+      "(S,Ø)": {
+        "x": 1,
+        "y": 0,
+        "is_nash": false
+      },
+      "(S,C)": {
+        "x": 1,
+        "y": 1,
+        "is_nash": false
+      }
+    },
+    "eigenvalues_analytic": [
+      "0.1777533333267264j",
+      "-0.1777533333267264j"
+    ],
+    "eigenvalues_numeric": [
+      "(3.135124019968592e-19+0.1777533333334823j)",
+      "(3.135124019968592e-19-0.1777533333334823j)"
+    ],
+    "is_center": true,
+    "ergodic_check": {
+      "x_time_avg": 0.819946304980904,
+      "y_time_avg": 0.5025340100486273,
+      "x_star": 0.8199708454810497,
+      "y_star": 0.5028238686748727
+    },
+    "orbit_period_small_amplitude": {
+      "mean_period": 35.48435522006479,
+      "std_period": 1.7517380770339428e-09,
+      "n_cycles": 5
+    },
+    "figures": [
+      "figures/fig_C1_phase_portrait.png",
+      "figures/fig_C2_time_series.png",
+      "figures/fig_C3_sensitivity.png"
+    ],
+    "regimes": {
+      "sigma_baixo_pdelta_baixo": {
+        "params": {
+          "V": 1.0,
+          "L": 0.978,
+          "g": 0.2024,
+          "sigma": 0.23401583999999997,
+          "kappa": 0.1,
+          "p": 1.0,
+          "delta": 0.1
+        },
+        "x_star": 1.0026737967914439,
+        "y_star": 0.3,
+        "interior_valid": false,
+        "strict_nash_vertices": [
+          "(S,C)"
+        ]
+      },
+      "sigma_baixo_pdelta_alto": {
+        "params": {
+          "V": 1.0,
+          "L": 0.978,
+          "g": 0.2024,
+          "sigma": 0.23401583999999997,
+          "kappa": 0.1,
+          "p": 1.0,
+          "delta": 3.0
+        },
+        "x_star": 0.23699178428481146,
+        "y_star": 0.3,
+        "interior_valid": true,
+        "strict_nash_vertices": []
+      },
+      "sigma_alto_pdelta_baixo": {
+        "params": {
+          "V": 1.0,
+          "L": 0.978,
+          "g": 0.2024,
+          "sigma": 2.3401584,
+          "kappa": 0.1,
+          "p": 1.0,
+          "delta": 0.1
+        },
+        "x_star": 1.0026737967914439,
+        "y_star": 3.0,
+        "interior_valid": false,
+        "strict_nash_vertices": [
+          "(N,C)"
+        ]
+      },
+      "sigma_alto_pdelta_alto": {
+        "params": {
+          "V": 1.0,
+          "L": 0.978,
+          "g": 0.2024,
+          "sigma": 2.3401584,
+          "kappa": 0.1,
+          "p": 1.0,
+          "delta": 3.0
+        },
+        "x_star": 0.23699178428481146,
+        "y_star": 3.0,
+        "interior_valid": false,
+        "strict_nash_vertices": [
+          "(N,C)"
+        ]
+      }
+    }
+  }
+}
