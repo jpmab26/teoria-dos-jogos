@@ -85,7 +85,7 @@ def part_a_control(results):
     plt.axhline(1.0, color="k", linestyle=":", linewidth=0.8)
     plt.axvline(ts_n, color="r", linestyle="--", linewidth=0.8, label=f"settling time = {ts_n:.2f}s")
     plt.xlabel("Tempo (s)"); plt.ylabel("Velocidade rotacional (rad/s)")
-    plt.title("Resposta ao degrau - controlador PI unico (Parte A.1)")
+    plt.title("Resposta ao degrau - controlador PI unico")
     plt.legend()
     fig_a1 = savefig("fig_A1_non_switching_response.png")
 
@@ -112,14 +112,14 @@ def part_a_control(results):
     plt.plot(t, y_n, color="r", label="controlador nao comutante")
     plt.axhline(1.0, color="k", linestyle=":", linewidth=0.8)
     plt.xlabel("Tempo (s)"); plt.ylabel("Velocidade rotacional (rad/s)")
-    plt.title(f"Resposta do NCS - envoltoria de {N_SIMS_MC} simulacoes\n(Parte A.2, cf. Fig. 12 do artigo)", fontsize=11)
+    plt.title(f"Resposta do NCS - envoltoria de {N_SIMS_MC} simulacoes", fontsize=11)
     plt.legend()
     fig_a2_env = savefig("fig_A2_switching_envelope.png")
 
     plt.figure(figsize=(7, 4))
     plt.hist(st_s[~np.isnan(st_s)], bins=100)
     plt.xlabel("Tempo de acomodacao (s)"); plt.ylabel("Numero de simulacoes")
-    plt.title("Histograma do tempo de acomodacao - controlador comutante\n(Parte A.2, cf. Fig. 13)", fontsize=11)
+    plt.title("Histograma do tempo de acomodacao - controlador comutante", fontsize=11)
     fig_a2_hist = savefig("fig_A2_settling_histogram.png")
 
     settling_std = float(np.nanstd(st_s))
@@ -179,7 +179,7 @@ def part_a3_attack(results):
     plt.plot(t, ns["y_expected"], "b--", label="ataque esperado (modelo estimado)")
     plt.plot(t, ns["y_actual"], "r", label="ataque real (modelo verdadeiro)")
     plt.xlabel("Tempo (s)"); plt.ylabel("Velocidade rotacional (rad/s)")
-    plt.title("Ataque SD-Controlled contra controlador NAO comutante\n(Parte A.3, cf. Fig. 5)", fontsize=11)
+    plt.title("Ataque SD-Controlled contra controlador NAO comutante", fontsize=11)
     plt.legend()
     fig_a3_n = savefig("fig_A3_attack_non_switching.png")
 
@@ -192,7 +192,7 @@ def part_a3_attack(results):
     plt.fill_between(t, sw["y_min"], sw["y_max"], alpha=0.3, label=f"respostas reais (Ko={ko_s})")
     plt.axhline(1.5, color="g", linestyle="--", linewidth=0.8, label="resposta esperada pelo atacante (pico 1.5)")
     plt.xlabel("Tempo (s)"); plt.ylabel("Velocidade rotacional (rad/s)")
-    plt.title("Ataque SD-Controlled contra controlador COMUTANTE\n(Parte A.3, cf. Fig. 14)", fontsize=11)
+    plt.title("Ataque SD-Controlled contra controlador COMUTANTE", fontsize=11)
     plt.legend()
     fig_a3_s = savefig("fig_A3_attack_switching.png")
 
@@ -234,9 +234,9 @@ def part_a4_bsa(results):
     plt.scatter([res["actual_a"]], [res["actual_b"]], marker="*", s=300, color="k", label="C1(z) real", zorder=3)
     plt.scatter([res["c2_actual_a"]], [res["c2_actual_b"]], marker="*", s=300, color="g", label="C2(z) real", zorder=3)
     plt.scatter(rn[:, 0], rn[:, 1], marker="x", s=80, color="C0", linewidths=2,
-                label=f"controlador nao comutante (N)\n(todas as {N_TRIALS_BSA} estimativas coincidem\ncom o valor real, ate erro numerico)", zorder=4)
+                label=f"controlador nao comutante (N)", zorder=4)
     plt.xlabel("a (coeficiente c1,1 estimado)"); plt.ylabel("b (coeficiente c2,1 estimado)")
-    plt.title(f"Dispersao dos coeficientes estimados por BSA, n={N_TRIALS_BSA}\n(Parte A.4, cf. Fig. 9)", fontsize=11)
+    plt.title(f"Dispersao dos coeficientes estimados por BSA, n={N_TRIALS_BSA}", fontsize=11)
     plt.legend()
     fig_a4 = savefig("fig_A4_bsa_dispersion.png")
 
@@ -352,7 +352,7 @@ def part_c_replicator(results, baseline_params: GameParams, replicated_params: G
         plt.annotate(name, (v["x"], v["y"]), textcoords="offset points", xytext=(6, 6))
     plt.xlim(0, 1); plt.ylim(0, 1)
     plt.xlabel("x (fracao de defensores usando S)"); plt.ylabel("y (fracao de atacantes usando C)")
-    plt.title("Retrato de fase da dinamica de replicador\n(cenario pedagogico, sigma reduzido -- Parte C)", fontsize=11)
+    plt.title("Retrato de fase da dinamica de replicador", fontsize=11)
     plt.legend(loc="lower left")
     fig_c1 = savefig("fig_C1_phase_portrait.png")
 
@@ -364,7 +364,7 @@ def part_c_replicator(results, baseline_params: GameParams, replicated_params: G
     plt.axhline(xs_p, color="C0", linestyle=":", linewidth=0.8)
     plt.axhline(ys_p, color="C1", linestyle=":", linewidth=0.8)
     plt.xlabel("Tempo (geracoes)"); plt.ylabel("Fracao da populacao")
-    plt.title("Series temporais x(t), y(t)\norbita fechada em torno de (x*, y*), cenario pedagogico", fontsize=11)
+    plt.title("Series temporais x(t), y(t)\nOrbita fechada em torno de (x*, y*)", fontsize=11)
     plt.legend()
     fig_c2 = savefig("fig_C2_time_series.png")
 
