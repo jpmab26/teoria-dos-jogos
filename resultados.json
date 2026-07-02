@@ -2,7 +2,7 @@
   "part_a_control": {
     "non_switching": {
       "settling_time_s": 2.4,
-      "overshoot_pct": -0.006460435216970595,
+      "overshoot_pct": -0.006460435216937288,
       "reference_article": {
         "settling_time_s": 2.4,
         "overshoot_pct": 0.0
@@ -11,7 +11,7 @@
     },
     "switching": {
       "n_sims": 100000,
-      "elapsed_s": 2.4943554401397705,
+      "elapsed_s": 2.5005862712860107,
       "settling_time_mean_s": 4.2835326,
       "settling_time_std_s": 0.7273763405124201,
       "settling_time_ci95_of_mean_s": 0.00450832526618941,
@@ -38,7 +38,7 @@
     "non_switching": {
       "ko": 4.045410432531361,
       "expected_overshoot_pct": 49.999999982010436,
-      "actual_overshoot_pct": 48.911285597069295,
+      "actual_overshoot_pct": 48.91128559706927,
       "reference_article": {
         "ko": 4.0451,
         "overshoot_pct": 48.9
@@ -61,9 +61,9 @@
     "n_trials": 30,
     "pop_size": 100,
     "iters": 600,
-    "elapsed_s": 16.427482843399048,
-    "fitness_mean_non_switching": 4.852139753640591e-34,
-    "fitness_std_non_switching": 1.7105694144590052e-49,
+    "elapsed_s": 23.997570037841797,
+    "fitness_mean_non_switching": 2.030652385113292e-34,
+    "fitness_std_non_switching": 0.0,
     "fitness_mean_switching": 0.0008325000496120688,
     "fitness_std_switching": 0.00010520696901359961,
     "reference_article": {
@@ -90,14 +90,14 @@
     },
     "replicated": {
       "V": 1.0,
-      "L": 0.9782257119413859,
+      "L": 0.9782257119413855,
       "g": 0.20273567199707032,
       "sigma": 0.7848052500000001,
       "source": "replicado",
       "raw": {
         "ts_n": 2.4,
         "ts_s_mean": 4.2835326,
-        "actual_overshoot_n": 48.911285597069295,
+        "actual_overshoot_n": 48.91128559706927,
         "overshoot_s_given_ko": 10.136783599853516
       }
     },
@@ -112,7 +112,7 @@
     },
     "replicated_game_params": {
       "V": 1.0,
-      "L": 0.9782257119413859,
+      "L": 0.9782257119413855,
       "g": 0.20273567199707032,
       "sigma": 0.7848052500000001,
       "kappa": 0.1,
@@ -135,7 +135,7 @@
     "x_star": 0.8199708454810497,
     "y_star": 1.0056477373497454,
     "x_star_replicated": 0.8202216886409134,
-    "y_star_replicated": 1.0062838275130337,
+    "y_star_replicated": 1.0062838275130341,
     "x_star_pedagogical": 0.8199708454810497,
     "y_star_pedagogical": 0.5028238686748727,
     "vertices": {
@@ -198,8 +198,8 @@
       "y_star": 0.5028238686748727
     },
     "orbit_period_small_amplitude": {
-      "mean_period": 35.48435522006479,
-      "std_period": 1.7517380770339428e-09,
+      "mean_period": 35.48435522006481,
+      "std_period": 1.7517238631424466e-09,
       "n_cycles": 5
     },
     "figures": [

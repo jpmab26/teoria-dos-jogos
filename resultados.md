@@ -16,7 +16,7 @@ Gerado por `main.py`. Todas as figuras estao em `figures/`. Seeds fixas usadas: 
 | Ko (ataque contra N) | 4.0451 | 4.0454 | ver nota de validacao abaixo |
 | Overshoot real (ataque contra N) | 48.9% | 48.91% | |
 | Overshoot maximo (ataque contra S) | 10.12% | 10.1368% | Ko=1.2815 (valor do artigo) |
-| Fitness BSA medio (N) | 1.840e-07 | 4.852e-34 | n=30 (reduzido de 100) |
+| Fitness BSA medio (N) | 1.840e-07 | 2.031e-34 | n=30 (reduzido de 100) |
 | Fitness BSA medio (S) | 7.420e-04 | 8.325e-04 | |
 
 **Nota de validacao (Ko / overshoot contra N):** Ko projetado (4.0454) e overshoot real obtido (48.91%) reproduzem os valores de referencia (Ko=4.0451, overshoot=48.90%) com erro abaixo de 0.1%. Ver src/ncs_model.py (nota 'RESOLUCAO DE AMBIGUIDADE DE SINAL') para a convencao de sinal usada na planta e no controlador.
@@ -50,7 +50,7 @@ kappa, p e delta nao tem contrapartida numerica direta na literatura de controle
 - Autovalores no ponto interior do cenario pedagogico (analitico): ['0.1777533333267264j', '-0.1777533333267264j']
 - Classificado como centro (autovalores puramente imaginarios)? **True**
 - Verificacao ergodica (Teorema 9.8 de Gintis, cenario pedagogico): media temporal (0.8199, 0.5025) vs (x*,y*) = (0.8200, 0.5028)
-- Periodo estimado da orbita (pequena amplitude, cenario pedagogico): {'mean_period': 35.48435522006479, 'std_period': 1.7517380770339428e-09, 'n_cycles': 5}
+- Periodo estimado da orbita (pequena amplitude, cenario pedagogico): {'mean_period': 35.48435522006481, 'std_period': 1.7517238631424466e-09, 'n_cycles': 5}
 
 ### Equilibrios de Nash estritos nos vertices (cenario baseline/artigo)
 
