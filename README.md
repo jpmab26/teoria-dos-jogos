@@ -517,7 +517,7 @@ fixados em um cenário-base ilustrativo (`κ=0,1`; `p=0,3`; `δ=1,0`, em
 unidades de `V=1`) e variados amplamente na análise de sensibilidade
 (item 7 acima).
 
-### O achado "knife-edge"
+### A Solução de Canto (Colapso do Equilíbrio Interior)
 
 Com os parâmetros calibrados — tanto a partir da referência de controle
 quanto a partir da nossa própria replicação, que agora concordam muito de
